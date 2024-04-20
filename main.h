@@ -11,6 +11,7 @@
 #include "adc.h"
 #include "lcd.h"
 #include "therm.h"
+#include "heartrate.h"
 
 // Define Constants
 #define ADC_MUX_BITS 0b1111
@@ -30,8 +31,6 @@
 #define LCD_DISPLAY_ON 0x0F // Display on, cursor off, blink off
 #define LCD_FUNCTION_SET 0x38 // 4-bit mode, 2 lines, 5x8 dots
 #define LOOP_CYCLES      8       //Your clock speed in Hz (3Mhz here)
-#define BEAT_THRESHOLD 200 // Adjust this based on your sensor data range
-#define MAX_BEATS 10 // Number of beats to average for heart rate calculation
 
 // Define Aliases/Commands
 #define THERM_PORT PORTC
@@ -46,9 +45,8 @@
 // Number of cycles that the loop takes
 #define us(num) (num/(LOOP_CYCLES*(1/(FOSC/1000000.0))))
 
-// Function Prototypes
-uint8_t smooth_signal(uint8_t);
-void heartbeatCalc(char *);
-void timer1_init();
-unsigned long millis();
-inline __attribute__((gnu_inline)) void therm_delay(uint16_t delay){ while(delay--) asm volatile("nop"); }
+// Define Global Variables
+volatile unsigned long timer_ticks = 0;
+
+// Define Function Prototypes
+

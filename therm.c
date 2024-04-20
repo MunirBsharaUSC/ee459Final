@@ -15,6 +15,8 @@
 #define THERM_CMD_CONVERTTEMP 0x44
 #define THERM_CMD_RSCRATCHPAD 0xbe
 
+inline __attribute__((gnu_inline)) void therm_delay(uint16_t delay){ while(delay--) asm volatile("nop"); }
+
 uint8_t therm_reset(){
     uint8_t i;
     THERM_LOW();
