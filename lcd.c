@@ -1,20 +1,10 @@
-#include <util/delay.h>
-#include <string.h>
-
-#include "i2c.h"
-
-#define ADDR2 0x78
-#define LCD_CLEAR_DISPLAY 0x01
-#define LCD_RETURN_HOME 0x02
-#define LCD_ENTRY_MODE_SET 0x06
-#define LCD_DISPLAY_ON 0x0F // Display on, cursor off, blink off
-#define LCD_FUNCTION_SET 0x38 // 4-bit mode, 2 lines, 5x8 dots
+#include "lcd.h"
 
 void lcd_send_command(uint8_t command) {
     uint8_t control_byte = 0x80; // Control byte to indicate a command (adjust based on your LCD's protocol)
     uint8_t command_packet[2] = {control_byte, command};
 
-    // Send the command using i2c_io; adjust the device_addr as necessar
+    // Send the command using i2c_io; adjust the device_addr as necessary
     i2c_io(ADDR2, command_packet, 2, NULL, 0);
 }
 

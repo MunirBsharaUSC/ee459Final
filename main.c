@@ -4,15 +4,34 @@
 // Main Function
 int main(void) {
 
-    // Component Initialization
+    // Initialize i2c and lcd (for boot message)
     i2c_init(BDIV);
-    USART_Init(MYUBRR);
+    lcd_init();
+    //sei();
+    _delay_ms(100); // Wait for i2c initialization
+    
+    // LCD output buffers (lines enumerated top -> bottom)
+    char output[80];
+    memset(output, ' ', 80);
+    char line1[20], line2[20], line3[20], line4[20];
+    memset(line1, ' ', 20);
+    memset(line2, ' ', 20);
+    memset(line3, ' ', 20);
+    memset(line4, ' ', 20);
+
+    // Display Initialization Message
+    lcd_send_command(LCD_CLEAR_DISPLAY);
+    _delay_ms(100);
+    lcd_send_data("   Welcome to the   ");
+    while(1);
+
+    return;
+
+    // Initialization
+    //USART_Init(MYUBRR);
     adc_init();
     therm_reset();
-    lcd_init();
-    lcd_send_command(LCD_CLEAR_DISPLAY);
-    timer1_init();
-    sei();
+    //timer1_init();
 
     // Variables and Buffers
     uint8_t wdata[2];              // Buffer for reading data from EEPROM
@@ -41,6 +60,18 @@ int main(void) {
     text[2]='J';
     text[3]='D';
     text[4]='J';
+
+    // Perform boot check
+
+    
+    while(1){
+        lcd_send_data("Hello ");
+        _delay_ms(500);
+        lcd_send_data("World!");
+        _delay_ms(500);
+        lcd_send_command(LCD_CLEAR_DISPLAY);
+        _delay_ms(500);
+    }
 
     // Main Program Loop
     while(1) {

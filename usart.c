@@ -1,4 +1,4 @@
-#include <avr/interrupt.h>
+#include "usart.h"
 
 void USART_Init(unsigned int ubrr){
     // Set baud rate

@@ -1,3 +1,12 @@
+#include <avr/interrupt.h>
+#include <stdio.h>
+#include <util/delay.h>
+
+#include "adc.h"
+
+#define BEAT_THRESHOLD 200 // Adjust this based on your sensor data range
+#define MAX_BEATS 10 // Number of beats to average for heart rate calculation
+
 extern uint8_t smooth_signal(uint8_t);
 extern void heartbeatCalc(char *);
 extern void timer1_init();

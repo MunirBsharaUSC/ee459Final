@@ -1,7 +1,4 @@
-#include <avr/interrupt.h>
-
-#define ADC_MUX_BITS 0b1111
-#define ADC_PRSC  0b111         // Set the prescalar to divide by 128
+#include "adc.h"
 
 void adc_init(void)
 {
