@@ -10,7 +10,7 @@ void accel_init(void){
     _delay_ms(5);
     
     wdata[0] = ACCEL_DATA_FORMAT_REG;
-    wdata[1] = 0x0B;
+    wdata[1] = ACCEL_DATA_FORMAT;                            
     i2c_io(ACCEL_ADDR_WRITE, wdata, 2, NULL, 0);
     _delay_ms(5);
 }
