@@ -5,7 +5,7 @@ void lcd_send_command(uint8_t command) {
     uint8_t command_packet[2] = {control_byte, command};
 
     // Send the command using i2c_io; adjust the device_addr as necessary
-    i2c_io(ADDR2, command_packet, 2, NULL, 0);
+    i2c_io(LCD_ADDR, command_packet, 2, NULL, 0);
 }
 
 void lcd_send_data(char *command) {
@@ -20,7 +20,7 @@ void lcd_send_data(char *command) {
     }
 
     // Send the command using i2c_io; adjust the device_addr as necessar
-    i2c_io(ADDR2, command_packet, strlen(command)+1, NULL, 0);
+    i2c_io(LCD_ADDR, command_packet, strlen(command)+1, NULL, 0);
 }
 
 void lcd_init(void) {
@@ -36,7 +36,7 @@ void lcd_init(void) {
 
     // Clear Display: clear the display and set cursor position to zero
     lcd_send_command(LCD_CLEAR_DISPLAY);
-    _delay_ms(15); // Wait for command to execute
+    _delay_ms(5); // Wait for command to execute
 
     // Entry Mode Set: set the text entry mode (adjust as necessary)
     lcd_send_command(LCD_ENTRY_MODE_SET);
@@ -118,6 +118,6 @@ void lcd_clear(uint8_t row){
         lcd_print("                    ", row);
     else{ // Hard clear entire display
         lcd_send_command(LCD_CLEAR_DISPLAY);
-        _delay_ms(10);
+        _delay_ms(5);
     }
 }

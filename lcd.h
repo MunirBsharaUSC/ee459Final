@@ -3,7 +3,7 @@
 
 #include "i2c.h"
 
-#define ADDR2               0x78
+#define LCD_ADDR            0x78
 #define LCD_CLEAR_DISPLAY   0x01
 #define LCD_RETURN_HOME     0x02
 #define LCD_ENTRY_MODE_SET  0x06
