@@ -18,3 +18,4 @@ extern void lcd_send_command(uint8_t);
 extern void lcd_send_data(char *);
 extern void lcd_init(void);
 extern void lcd_print(char* output, uint8_t row);
+extern void lcd_clear(uint8_t row);

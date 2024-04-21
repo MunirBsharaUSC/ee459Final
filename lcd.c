@@ -6,8 +6,6 @@ void lcd_send_command(uint8_t command) {
 
     // Send the command using i2c_io; adjust the device_addr as necessary
     i2c_io(ADDR2, command_packet, 2, NULL, 0);
-
-    _delay_ms(15);
 }
 
 void lcd_send_data(char *command) {
@@ -23,8 +21,6 @@ void lcd_send_data(char *command) {
 
     // Send the command using i2c_io; adjust the device_addr as necessar
     i2c_io(ADDR2, command_packet, strlen(command)+1, NULL, 0);
-
-    _delay_us(120);
 }
 
 void lcd_init(void) {
@@ -61,12 +57,14 @@ void lcd_print(char* output, uint8_t row){
             lcd_send_command(LCD_MOVE_ROW3);
         else if (row == 4)
             lcd_send_command(LCD_MOVE_ROW4);
+        _delay_us(50);
 
         uint8_t i;
         for(i=0; i<20; i++)
             row_out[i] = output[i];
         row_out[20] = '\0';
         lcd_send_data(row_out);
+        _delay_us(50);
     }
     else{// Print to entire display (truncates to 80 characters with proper wrapping)
         uint8_t i = 0;
@@ -77,33 +75,49 @@ void lcd_print(char* output, uint8_t row){
             row_out[i] = output[i];
         row_out[20] = '\0';
         lcd_send_data(row_out);
+        _delay_us(50);
 
         // Print row 2
         if(strlen(output) > 20){
             lcd_send_command(LCD_MOVE_ROW2);
+            _delay_us(50);
             for(i=0; i<20; i++)
                 row_out[i] = output[20+i];
             row_out[20] = '\0';
             lcd_send_data(row_out);
+            _delay_us(50);
         }
 
         // Print row 3
         if(strlen(output) > 40){
             lcd_send_command(LCD_MOVE_ROW3);
+            _delay_us(50);
             for(i=0; i<20; i++)
                 row_out[i] = output[40+i];
             row_out[20] = '\0';
             lcd_send_data(row_out);
+            _delay_us(50);
         }
 
         // Print row 4
         if(strlen(output) > 60){
             lcd_send_command(LCD_MOVE_ROW4);
+            _delay_us(50);
             for(i=0; i<20; i++)
                 row_out[i] = output[60+i];
             row_out[20] = '\0';
             lcd_send_data(row_out);
+            _delay_us(50);
         }
     }
 }
 
+// Wrapper function to clear the LCD display
+void lcd_clear(uint8_t row){
+    if(row >= 1 && row <= 4) // Clear a specific row with space printing
+        lcd_print("                    ", row);
+    else{ // Hard clear entire display
+        lcd_send_command(LCD_CLEAR_DISPLAY);
+        _delay_ms(10);
+    }
+}
