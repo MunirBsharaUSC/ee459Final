@@ -42,8 +42,9 @@ int main(void) {
     uint8_t delayTime=0;
     uint8_t delayFlag=0;
     uint8_t firstEntry=1;
-    unsigned long step=0;
-    unsigned long oldStep=0;
+    unsigned long tripStep=0;
+    unsigned long oldTripStep=0;
+
 
     unsigned long count=0;
     unsigned long beat_times[10]={0};
@@ -57,6 +58,7 @@ int main(void) {
 
     // Retrieve info from EEPROM
     state = eeprom_read_byte((void*) 0);
+    tripStep = eeprom_read_byte((void*) 4);
     state = (state >= 6 || state < 0) ? STATE_HOME : state; // Check state validity. Default to home if invalid
 
     // Display succesful boot
@@ -127,33 +129,32 @@ int main(void) {
 
             case STATE_ACCEL:
                 lcd_print("  |ACCELEROMETER|   ", 1);
-                pedometer(&x, &y, &z, &delayTime, &delayFlag, &step);
+
 
                 if(counter++==9){
                     counter=0;
-                    snprintf(accel_buf, 20, "X:%+4d Y:%+4d Z:%+4d", x,y,z);
+                    snprintf(accel_buf, 20, "X:%+4dY:%+4dZ:%+4d", x,y,z);
                     lcd_clear(2);
                     lcd_print(accel_buf, 2);
                 }
 
 
-                if(oldStep!=step){
-                    snprintf(accel_buf, 20, "   Stick Steps:%ld", step);
+                if(oldTripStep!=tripStep){
+                    snprintf(accel_buf, 20, "   Stick Steps:%ld", tripStep);
                     lcd_clear(3);
                     lcd_print(accel_buf, 3);
-                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (step*2));
+                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (tripStep*2));
                     lcd_clear(4);
                     lcd_print(accel_buf, 4);
-                    oldStep=step;
+                    firstEntry=0;
                 }
-                if(firstEntry){
-                    snprintf(accel_buf, 20, "   Stick Steps:%ld", step);
+               else if(firstEntry){
+                    snprintf(accel_buf, 20, "   Stick Steps:%ld", tripStep);
                     lcd_clear(3);
                     lcd_print(accel_buf, 3);
-                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (step*2));
+                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (tripStep*2));
                     lcd_clear(4);
                     lcd_print(accel_buf, 4);
-                    oldStep=step;
                     firstEntry=0;
                 }
             break;
@@ -161,7 +162,8 @@ int main(void) {
             case STATE_TRIP:
                 lcd_print("    |TRIP DATA|     ", 1);
                 lcd_print("  Hold 3s to reset  ", 2);
-                lcd_print("STEPS: ", 3);
+                snprintf(accel_buf, 20, "STEPS: %ld", tripStep*2);
+                lcd_print(accel_buf, 3);
                 lcd_print("TIME: ", 4);
                 firstEntry=1;
 
@@ -173,6 +175,7 @@ int main(void) {
                 _delay_ms(3000);
                 state = STATE_TRIP;
                 state_change = 1;
+                tripStep=0;
                 lcd_clear(0);
             break;
         }
@@ -182,7 +185,13 @@ int main(void) {
             lcd_clear(0);
             _delay_ms(50);
             enable_button_interrupt();
+
         }
+        if(oldTripStep!=tripStep){
+            eeprom_update_byte((void*) 4, tripStep);
+            oldTripStep=tripStep;
+        }
+        pedometer(&x, &y, &z, &delayTime, &delayFlag, &tripStep);
         _delay_ms(10); //Fixed loop delay
     };
 
