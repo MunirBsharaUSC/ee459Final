@@ -34,11 +34,11 @@ int main(void) {
     int16_t y;
     int16_t z;
     timer_ticks = 0;
-    
+
     memset(latitude, ' ', 20);
     memset(longitude, ' ', 20);
     gps_data_ready = 0;
-    
+
     uint8_t delayTime=0;
     uint8_t delayFlag=0;
     uint8_t firstEntry=1;
@@ -76,19 +76,21 @@ int main(void) {
                 lcd_print("Press to toggle view", 2);
                 lcd_print("1:Home 2:GPS 3:Pulse", 3);
                 lcd_print("4:Temp 5:Acc 6:Trip ", 4);
+                firstEntry=1;
             break;
 
             case STATE_GPS:
                 lcd_print("     |GPS DATA|     ", 1);
+                firstEntry=1;
                 while(!gps_data_ready);
                 if(isGPSLocked()){
-                    lcd_print(" GPS Lock Obtained! ", 2);  
+                    lcd_print(" GPS Lock Obtained! ", 2);
                     parse_gpgga();
                     char out_buf[20];
                     sprintf(out_buf, "LAT : %s", latitude);
                     lcd_print(out_buf, 3);
                     sprintf(out_buf, "LONG: %s", longitude);
-                    lcd_print(out_buf, 4);   
+                    lcd_print(out_buf, 4);
                     gps_data_ready = 0;
                 }
                 else{ // No GPS Lock
