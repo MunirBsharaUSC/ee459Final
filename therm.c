@@ -97,6 +97,17 @@ void therm_read_temperature(char *buffer){
     decimal=temperature[0]&0xf;
     decimal*=THERM_DECIMAL_STEPS_12BIT;
 
-    sprintf(buffer, "%+d.%04u C", digit, decimal);
+    if(digit>=40){
+        sprintf(buffer, "    %+d.%04u  HOT     ", digit, decimal);
+    }
+    else if(digit>=30){
+        sprintf(buffer, "    %+d.%04u  WARM    ", digit, decimal);
+    }
+    else if(digit>=20){
+        sprintf(buffer, "    %+d.%04u  ROOM    ", digit, decimal);
+    }
+    else{
+        sprintf(buffer, "    %+d.%04u  COLD    ", digit, decimal);
+    }
 
 }

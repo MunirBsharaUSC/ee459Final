@@ -30,9 +30,11 @@ int main(void) {
 
     // Variables and Buffers
     char accel_buf[20];
+    int16_t x = 0;
+    int16_t y = 0;
     int16_t z = 0;
     timer_ticks = 0;
-    
+
     uint8_t delayTime=0;
     uint8_t delayFlag=0;
     unsigned long step=0;
@@ -45,7 +47,7 @@ int main(void) {
     uint8_t en=0;
     uint8_t prevSample=0;
 
-  
+
     // Retrieve info from EEPROM
     state = eeprom_read_byte((void*) 0);
     state = (state >= 6 || state < 0) ? STATE_HOME : state; // Check state validity. Default to home if invalid
@@ -83,14 +85,24 @@ int main(void) {
             break;
 
             case STATE_TEMP:
-                lcd_print("Temp State", 0);
+                lcd_print("   |TEMPERATURE|    ", 1);
+                lcd_print("      Celsius      ", 2);
+                therm_read_temperature(accel_buf);
+                lcd_clear(3);
+                lcd_print(accel_buf, 3);
+
             break;
 
             case STATE_ACCEL:
-                lcd_print("Accel State", 0);
-                pedometer(&z, &delayTime, &delayFlag, &step);
+                lcd_print("  |ACCELEROMETER|   ", 1);
+                pedometer(&x, &y, &z, &delayTime, &delayFlag, &step);
+                snprintf(accel_buf, 20, "X:%d Y:%d Z:%d", x,y,z);
+
                 if(oldStep!=step){
-                    snprintf(accel_buf, 20, "Y:%ld", step);
+                    snprintf(accel_buf, 20, "   Stick Steps:%ld", step);
+                    lcd_clear(3);
+                    lcd_print(accel_buf, 3);
+                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (step*2));
                     lcd_clear(4);
                     lcd_print(accel_buf, 4);
                     oldStep=step;
@@ -98,12 +110,12 @@ int main(void) {
             break;
 
             case STATE_TRIP:
-                lcd_print("Trip State", 0);
-    
+                lcd_print("    |TRIP STATE|    ", 1);
+
             break;
 
             case STATE_TRIP_RESET:
-                lcd_print("RESET TRIP DATA", 0);
+                lcd_print(" |RESET TRIP DATA|  ", 1);
                 _delay_ms(3000);
                 state = STATE_TRIP;
                 state_change = 1;
