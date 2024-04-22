@@ -27,12 +27,13 @@ int main(void) {
     button_init();
     therm_reset();
     timer1_init();
+    timer2_init();
 
     // Variables and Buffers
     char accel_buf[20];
-    int16_t x;
-    int16_t y;
-    int16_t z;
+    int16_t x = 0;
+    int16_t y = 0;
+    int16_t z = 0;
     timer_ticks = 0;
 
     memset(latitude, ' ', 20);
@@ -127,7 +128,6 @@ int main(void) {
 
             case STATE_ACCEL:
                 lcd_print("  |ACCELEROMETER|   ", 1);
-                pedometer(&x, &y, &z, &delayTime, &delayFlag, &step);
 
                 if(counter++==9){
                     counter=0;
@@ -161,7 +161,7 @@ int main(void) {
             case STATE_TRIP:
                 lcd_print("    |TRIP DATA|     ", 1);
                 lcd_print("  Hold 3s to reset  ", 2);
-                lcd_print("STEPS: ", 3);
+                lcd_print("STICKSTEPS: ", 3);
                 lcd_print("TIME: ", 4);
                 firstEntry=1;
 
@@ -173,6 +173,7 @@ int main(void) {
                 _delay_ms(3000);
                 state = STATE_TRIP;
                 state_change = 1;
+                trip_time = 0;
                 lcd_clear(0);
             break;
         }
@@ -180,7 +181,7 @@ int main(void) {
             state_change = 0;
             eeprom_update_byte((void*) 0, state);
             lcd_clear(0);
-            _delay_ms(50);
+            _delay_ms(100);
             enable_button_interrupt();
         }
         _delay_ms(10); //Fixed loop delay

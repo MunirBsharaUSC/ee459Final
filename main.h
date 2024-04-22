@@ -17,6 +17,7 @@
 #include "pulse.h"
 #include "gps.h"
 #include "button.h"
+#include "timer.h"
 
 // Define Constants
 #define FOSC 9830400                        // Clock frequency = Oscillator freq.
@@ -44,8 +45,7 @@ volatile int8_t state;
 volatile int8_t state_change;
 volatile uint8_t button_hold_count;
 volatile unsigned long timer_ticks;
-volatile uint16_t trip_step_count;
-volatile uint16_t trip_second_count;
+volatile uint16_t trip_time;
 
 volatile uint8_t gps_data_ready;
 volatile char gps_buffer[128];
