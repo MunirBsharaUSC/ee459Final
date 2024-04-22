@@ -37,8 +37,8 @@ int main(void) {
 
     memset(latitude, ' ', 20);
     memset(longitude, ' ', 20);
-    //memset(dir1, ' ', 5);
-    //memset(dir2, ' ', 5);
+    memset(dir1, ' ', 2);
+    memset(dir2, ' ', 2);
     gps_data_ready = 0;
 
     uint8_t delayTime = 0;
@@ -88,19 +88,15 @@ int main(void) {
                 lcd_print("     |GPS DATA|     ", 1);
                 firstEntry=1;
                 while(!gps_data_ready);
-
-                // lcd_print(gps_buffer, 0);
-
-                // if (strncmp(gps_buffer, "$GPGGA", 6) == 0){
-                //     parse_gpgga();
-                //     lcd_print("    Locked GPGGA   ", 2);
-                //     sprintf(output_buf, "LAT : %s %s", latitude, dir1);
-                //     lcd_print(output_buf, 3);
-                //     sprintf(output_buf, "LONG: %s %s", longitude, dir2);
-                //     lcd_print(output_buf, 4);
-                //     gps_data_ready = 0;
-                // }
-
+                if (strncmp(gps_buffer, "$GPGGA", 6) == 0){
+                    parse_gpgga();
+                    lcd_print("    Locked GPGGA   ", 2);
+                    sprintf(output_buf, "LAT : %s %s", latitude, dir1);
+                    lcd_print(output_buf, 3);
+                    sprintf(output_buf, "LONG: %s %s", longitude, "W");
+                    lcd_print(output_buf, 4);
+                    gps_data_ready = 0;
+                }
                 if (strncmp(gps_buffer, "$GPRMC", 6) == 0){
                     lcd_print("    Locked GPRMC   ", 2);
                     parse_gprmc();
@@ -179,14 +175,14 @@ int main(void) {
                 lcd_clear(0);
                 state = STATE_TRIP;
                 state_change = 1;
-                trip_step=0;
-                trip_time = 0;
                 lcd_print(" |RESET TRIP DATA|  ", 1);
                 _delay_ms(1000);
                 lcd_print("    Returning to    ", 3);
                 lcd_print("    trip view...    ", 4);
                 _delay_ms(2000);
                 lcd_clear(0);
+                trip_step = 0;
+                trip_time = 0;
             break;
         }
         if(state_change){
@@ -195,7 +191,6 @@ int main(void) {
             lcd_clear(0);
             _delay_ms(100);
             enable_button_interrupt();
-
         }
         if(old_trip_step !=trip_step){
             eeprom_update_dword((void*) 8, trip_step);
