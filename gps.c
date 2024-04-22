@@ -4,6 +4,8 @@ extern volatile uint8_t gps_data_ready;
 extern volatile char gps_buffer[128];
 extern char latitude[20];
 extern char longitude[20]; 
+extern char dir1[2];
+extern char dir2[2];
 
 ISR(USART_RX_vect) {
     char received_char = UDR0; 
@@ -19,59 +21,61 @@ ISR(USART_RX_vect) {
     }
 }
 
-char parse_gpgga(void) {
+void parse_gpgga(void) {
 
     char *token;
     uint8_t count = 0;
 
-    if (strncmp(gps_buffer,"$GPGGA", 6) == 0 ){ // GPGGA Data 
+    unsigned char data_copy[strlen(gps_buffer) + 1];
+    strcpy(data_copy, gps_buffer);
+    data_copy[strlen(gps_buffer) + 1] = '\0';
 
-        char data_copy[strlen(gps_buffer) + 1];
-        strcpy(data_copy, gps_buffer);
-        data_copy[strlen(gps_buffer) -1] = '\0'; 
-
-        token = strtok(data_copy, ",");
-        while (token != NULL) {
-            count++;
-            if (count == 3) {
-                strcpy(latitude, token);
-            }
-            else if (count == 5) {
-                strcpy(longitude, token);
-                break;
-            }
-            token = strtok(NULL, ",");
+    token = strtok(data_copy, ",");
+    while (token != NULL) {
+        count++;
+        if (count == 2) {
+            strcpy(latitude, token);
         }
-        return 1;
+        else if (count == 3){
+            strcpy(dir1, token);
+        }
+        else if (count == 9){
+            strcpy(dir2, token);
+        }
+        else if (count == 10){
+            strcpy(longitude, token);
+            break;
+        }
+        token = strtok(NULL, ",");
     }
-    else{ // Not GPGGA data
-        return 0;
-    }    
 }
 
-char isGPSLocked(void) {
-    if (strncmp(gps_buffer, "$GPGGA", 6) == 0) {
-        return 1;
+void parse_gprmc(void){
+
+    char *token;
+    uint8_t count = 0;
+
+    unsigned char data_copy[strlen(gps_buffer) + 1];
+    strcpy(data_copy, gps_buffer);
+    data_copy[strlen(gps_buffer) + 1] = '\0';
+
+    token = strtok(data_copy, ",");
+    while (token != NULL) {
+        count++;
+        if (count == 4) {
+            strcpy(latitude, token);
+        }
+        else if (count == 5){
+            strcpy(dir1, token);
+        }
+        else if (count == 6) {
+            strcpy(longitude, token);
+            break;
+        }
+        // else if (count == 7){
+        //     strcpy(dir2, token);
+        //     break;
+        // }
+        token = strtok(NULL, ",");
     }
-    else{
-        return 0;
-    }
-
-    // // Find the comma after the 5th field (GPS Quality Indicator)
-    // const char* comma = strchr(gps_buffer, ',');
-    // int i;
-    // for (i = 0; i < 4; ++i) {
-    //     comma = strchr(comma + 1, ',');
-    //     if (comma == NULL) {
-    //         return 0; 
-    //     }
-    // }
-
-    // // Check if the GPS Quality Indicator is '1' (indicating a GPS fix)
-    // char quality_indicator = *(comma + 1);
-    // if (quality_indicator == '1' || quality_indicator == '2') {
-    //     return 1;
-    // }
-
-    return 0;
 }

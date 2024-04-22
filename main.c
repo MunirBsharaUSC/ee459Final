@@ -1,18 +1,6 @@
 // Include Dependencies
 #include "main.h"
 
-
-int containsEmptyChars(const char str[]) {
-    int i;
-    for (i = 0; str[i] != '\0'; i++) {
-        if (isspace(str[i])) { // isspace() returns true if the character is whitespace
-            return 1; // Empty character found
-        }
-    }
-    return 0; // No empty characters found
-}
-
-
 // Main Function
 int main(void) {
 
@@ -49,6 +37,8 @@ int main(void) {
 
     memset(latitude, ' ', 20);
     memset(longitude, ' ', 20);
+    //memset(dir1, ' ', 5);
+    //memset(dir2, ' ', 5);
     gps_data_ready = 0;
 
     uint8_t delayTime = 0;
@@ -66,7 +56,6 @@ int main(void) {
     uint8_t prevSample=0;
 
     uint8_t counter=0;
-
 
     // Retrieve info from EEPROM
     state = eeprom_read_byte((void*) 0);
@@ -100,39 +89,28 @@ int main(void) {
                 firstEntry=1;
                 while(!gps_data_ready);
 
-                if parse_gpgga(){
-                    lcd_print(" GPS Lock Obtained! ", 2); 
-                    char out_buf[20];
-                    sprintf(out_buf, "LAT : %s", latitude);
-                    lcd_print(out_buf, 3);
-                    sprintf(out_buf, "LONG: %s", longitude);
-                    lcd_print(out_buf, 4);
-                    gps_data_ready = 0;
-                }
-                else{
-                    // lcd_print("    No GPS Lock     ", 2);
-                    char out_buf1[128];
-                    sprintf(out_buf1, "Data : %s", gps_buffer);
-                    lcd_print(gps_buffer, 0);
-                }
-                
-                // if(strncmp(gps_buffer, "$GPGGA", 6) == 0){ // Receiving GPGGA Data
-                    // lcd_print(" GPS Lock Obtained! ", 2); 
-                    // parse_gpgga();
-                    // char out_buf[20];
-                    // sprintf(out_buf, "LAT : %s", latitude);
-                    // lcd_print(out_buf, 3);
-                    // char out_buf1[20];
-                    // sprintf(out_buf1, "LONG: %s", longitude);
-                    // lcd_print(out_buf1, 4);   
-                    // gps_data_ready = 0;
-                // }
-                // else{ // No GPS Lock
-                //     lcd_print("    No GPS Lock     ", 2);
-                //     lcd_print("    Attempting      ", 3);
-                //     lcd_print("    Connection...   ", 4);
+                // lcd_print(gps_buffer, 0);
+
+                // if (strncmp(gps_buffer, "$GPGGA", 6) == 0){
+                //     parse_gpgga();
+                //     lcd_print("    Locked GPGGA   ", 2);
+                //     sprintf(output_buf, "LAT : %s %s", latitude, dir1);
+                //     lcd_print(output_buf, 3);
+                //     sprintf(output_buf, "LONG: %s %s", longitude, dir2);
+                //     lcd_print(output_buf, 4);
+                //     gps_data_ready = 0;
                 // }
 
+                if (strncmp(gps_buffer, "$GPRMC", 6) == 0){
+                    lcd_print("    Locked GPRMC   ", 2);
+                    parse_gprmc();
+                    sprintf(output_buf, "LAT : %s %s", latitude, dir1);
+                    lcd_print(output_buf, 3);
+                    sprintf(output_buf, "LONG: %s %s", longitude, "W");
+                    lcd_print(output_buf, 4);
+                    gps_data_ready = 0;
+                }
+                
             break;
 
             case STATE_PULSE:
