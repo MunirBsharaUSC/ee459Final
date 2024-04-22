@@ -11,4 +11,6 @@
 #define NUM_STATES       6
 
 extern void button_init(void);
+extern void enable_button_interrupt(void);
+extern void disable_button_interrupt(void);
 extern ISR(PCINT2_vect);

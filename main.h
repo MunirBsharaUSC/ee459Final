@@ -1,6 +1,7 @@
 // Standard Include Libraries
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <string.h>
@@ -43,10 +44,10 @@ volatile int8_t state;
 volatile int8_t state_change;
 volatile uint8_t button_hold_count;
 volatile unsigned long timer_ticks;
+volatile uint16_t trip_step_count;
+volatile uint16_t trip_second_count;
 
 volatile uint8_t gps_data_ready;
 volatile char gps_buffer[128];
 char latitude[20];
-char longitude[20]; 
-
-// Define Function Prototypes
+char longitude[20];

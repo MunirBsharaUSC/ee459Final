@@ -55,7 +55,6 @@ int main(void) {
     uint8_t counter=0;
 
 
-
     // Retrieve info from EEPROM
     state = eeprom_read_byte((void*) 0);
     state = (state >= 6 || state < 0) ? STATE_HOME : state; // Check state validity. Default to home if invalid
@@ -71,13 +70,6 @@ int main(void) {
 
     // Main Program Loop
     while(1){
-        if(state_change){
-            state_change = 0;
-            eeprom_update_byte((void*) 0, state);
-            lcd_clear(0);
-            _delay_ms(50);
-            PCICR |= (1 << PCIE2);
-        }
         switch(state){
             case STATE_HOME:
                 lcd_print(" |SUMMITWAND HOME|  ", 1);
@@ -122,7 +114,7 @@ int main(void) {
             break;
 
             case STATE_TEMP:
-                lcd_print("   |TEMPERATURE|    ", 1);
+                lcd_print("   |THERMOMETER|    ", 1);
                 lcd_print("      Celsius      ", 2);
                 therm_read_temperature(accel_buf);
                 lcd_clear(3);
@@ -165,18 +157,29 @@ int main(void) {
             break;
 
             case STATE_TRIP:
-                lcd_print("    |TRIP STATE|    ", 1);
+                lcd_print("    |TRIP DATA|     ", 1);
+                lcd_print("  Hold 3s to reset  ", 2);
+                lcd_print("STEPS: ", 3);
+                lcd_print("TIME: ", 4);
                 firstEntry=1;
 
             break;
 
             case STATE_TRIP_RESET:
+                lcd_clear(0);
                 lcd_print(" |RESET TRIP DATA|  ", 1);
                 _delay_ms(3000);
                 state = STATE_TRIP;
                 state_change = 1;
                 lcd_clear(0);
             break;
+        }
+        if(state_change){
+            state_change = 0;
+            eeprom_update_byte((void*) 0, state);
+            lcd_clear(0);
+            _delay_ms(50);
+            enable_button_interrupt();
         }
         _delay_ms(10); //Fixed loop delay
     };

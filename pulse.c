@@ -98,7 +98,7 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
             total += beat_times[i];}
         }
         total = (MAX_BEATS * 60000) /(total);
-        snprintf(buffer, 20, "     %3d BEATS     ", total);
+        snprintf(buffer, 20, "     %3d BEATS     ", (int)total);
    /*     lcd_send_command(LCD_CLEAR_DISPLAY);
         _delay_ms(15);
         lcd_send_data(buffer);*/

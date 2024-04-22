@@ -15,6 +15,14 @@ void button_init(void){
     timer_running = 0;          // Reset timer running flag
 }
 
+void enable_button_interrupt(void){
+    PCICR |= (1 << PCIE2);
+}
+
+void disable_button_interrupt(void){
+    PCICR &= ~(1 << PCIE2);
+}
+
 void timer0_init(void){
     TCCR0A = 0;                             // Normal mode
     TCCR0B &= ~((1 << WGM02) | (1 << WGM01) | (1 << WGM00)); // Normal mode

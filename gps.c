@@ -23,7 +23,7 @@ void parse_gpgga(void) {
     char *token;
     uint8_t count = 0;
 
-    char data_copy[strlen(gps_buffer) + 1];
+    char data_copy[128];
     strcpy(data_copy, gps_buffer);
 
     token = strtok(data_copy, ",");

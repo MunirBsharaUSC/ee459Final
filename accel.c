@@ -1,5 +1,4 @@
 #include "accel.h"
-#include <stdint.h>
 
 void accel_init(void){
 
