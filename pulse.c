@@ -88,7 +88,7 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
         //_delay_ms(15);
     }
     if(!enTemp){
-        snprintf(buffer, 20, "      NO BEATS      ");
+        snprintf(buffer, 20, "      NO BEATS     ");
     }
     else if(enTemp && countTemp==1){
         unsigned long total=0;
