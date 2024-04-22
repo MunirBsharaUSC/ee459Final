@@ -82,6 +82,7 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
         *startIndex=0;
         *currIndex=0;
         enTemp=0;
+        countTemp=1;
         //lcd_send_command(LCD_CLEAR_DISPLAY);
         //_delay_ms(15);
     }
