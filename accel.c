@@ -28,9 +28,11 @@ void accel_read(int16_t* x, int16_t* y, int16_t* z){
     *z = ((rdata[5] << 8) | rdata[4]);
 }
 
-void pedometer(int16_t *prev_z, uint8_t *delayTime, uint8_t *delayFlag, unsigned long *step){
+void pedometer(int16_t *prev_x, int16_t *prev_y, int16_t *prev_z, uint8_t *delayTime, uint8_t *delayFlag, unsigned long *step){
     int16_t x,y,z;
     accel_read(&x,&y,&z);
+    *prev_x=x;
+    *prev_y=y;
     int16_t zVal=z;
     uint8_t delayTimeTemp = *delayTime;
     uint8_t delayFlagTemp = *delayFlag;

@@ -16,7 +16,7 @@
 
 extern void accel_init(void);
 extern void accel_read(int16_t* x, int16_t* y, int16_t* z);
-void pedometer(int16_t *, uint8_t *, uint8_t *, unsigned long *);
+void pedometer(int16_t *,int16_t *, int16_t *, uint8_t *, uint8_t *, unsigned long *);
 
 #define Z_THRESHOLD 180
 #define DELAYTHRESHOLD 5
