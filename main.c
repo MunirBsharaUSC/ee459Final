@@ -27,10 +27,9 @@ int main(void) {
     button_init();
     therm_reset();
     timer1_init();
-    timer2_init();
 
     // Variables and Buffers
-    char accel_buf[20];
+    char output_buf[20];
     int16_t x = 0;
     int16_t y = 0;
     int16_t z = 0;
@@ -40,11 +39,11 @@ int main(void) {
     memset(longitude, ' ', 20);
     gps_data_ready = 0;
 
-    uint8_t delayTime=0;
-    uint8_t delayFlag=0;
-    uint8_t firstEntry=1;
-    unsigned long tripStep=0;
-    unsigned long oldTripStep=0;
+    uint8_t delayTime = 0;
+    uint8_t delayFlag = 0;
+    uint8_t firstEntry = 1;
+    unsigned long trip_step = 0;
+    unsigned long old_trip_step = 0;
 
 
     unsigned long count=0;
@@ -59,8 +58,9 @@ int main(void) {
 
     // Retrieve info from EEPROM
     state = eeprom_read_byte((void*) 0);
-    tripStep = eeprom_read_byte((void*) 4);
     state = (state >= 6 || state < 0) ? STATE_HOME : state; // Check state validity. Default to home if invalid
+    trip_time = eeprom_read_dword((void*) 4);
+    trip_step = eeprom_read_dword((void*) 8);
 
     // Display succesful boot
     _delay_ms(1000);
@@ -70,6 +70,7 @@ int main(void) {
     _delay_ms(1000);
     lcd_clear(0);
     sei();  // Enable interrupts after boot
+    timer2_init(); // Start clock
 
     // Main Program Loop
     while(1){
@@ -105,11 +106,10 @@ int main(void) {
 
             case STATE_PULSE:
                 lcd_print("  |PULSE MONITOR|   ", 1);
-                heartbeatCalc(accel_buf, &count, beat_times, &currIndex, &startIndex, &en, &prevSample);
-
+                heartbeatCalc(output_buf, &count, beat_times, &currIndex, &startIndex, &en, &prevSample);
                 if(count==1){
                     lcd_clear(3);
-                    lcd_print(accel_buf, 3);
+                    lcd_print(output_buf, 3);
                 }
                 if(firstEntry){
                     lcd_clear(3);
@@ -121,41 +121,37 @@ int main(void) {
             case STATE_TEMP:
                 lcd_print("   |THERMOMETER|    ", 1);
                 lcd_print("      Celsius      ", 2);
-                therm_read_temperature(accel_buf);
+                therm_read_temperature(output_buf);
                 lcd_clear(3);
-                lcd_print(accel_buf, 3);
+                lcd_print(output_buf, 3);
                 firstEntry=1;
 
             break;
 
             case STATE_ACCEL:
                 lcd_print("  |ACCELEROMETER|   ", 1);
-
-
                 if(counter++==9){
                     counter=0;
-                    snprintf(accel_buf, 20, "X:%+4dY:%+4dZ:%+4d", x,y,z);
+                    snprintf(output_buf, 20, "X:%+4d Y:%+4d Z:%+4d", x,y,z);
                     lcd_clear(2);
-                    lcd_print(accel_buf, 2);
+                    lcd_print(output_buf, 2);
                 }
-
-
-                if(oldTripStep!=tripStep){
-                    snprintf(accel_buf, 20, "   Stick Steps:%ld", tripStep);
+                if(old_trip_step !=trip_step){
+                    snprintf(output_buf, 20, "  Stick Steps:%lu", trip_step);
                     lcd_clear(3);
-                    lcd_print(accel_buf, 3);
-                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (tripStep*2));
+                    lcd_print(output_buf, 3);
+                    snprintf(output_buf, 20, "   Est. Steps:%lu", (trip_step*2));
                     lcd_clear(4);
-                    lcd_print(accel_buf, 4);
+                    lcd_print(output_buf, 4);
                     firstEntry=0;
                 }
                else if(firstEntry){
-                    snprintf(accel_buf, 20, "   Stick Steps:%ld", tripStep);
+                    snprintf(output_buf, 20, "  Stick Steps:%lu", trip_step);
                     lcd_clear(3);
-                    lcd_print(accel_buf, 3);
-                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (tripStep*2));
+                    lcd_print(output_buf, 3);
+                    snprintf(output_buf, 20, "   Est. Steps:%lu", (trip_step*2));
                     lcd_clear(4);
-                    lcd_print(accel_buf, 4);
+                    lcd_print(output_buf, 4);
                     firstEntry=0;
                 }
             break;
@@ -163,21 +159,24 @@ int main(void) {
             case STATE_TRIP:
                 lcd_print("    |TRIP DATA|     ", 1);
                 lcd_print("  Hold 3s to reset  ", 2);
-                snprintf(accel_buf, 20, "STEPS: %ld", tripStep*2);
-                lcd_print(accel_buf, 3);
-                lcd_print("TIME: ", 4);
+                snprintf(output_buf, 20, "STEPS: %lu", trip_step*2);
+                lcd_print(output_buf, 3);
+                snprintf(output_buf, 20, " TIME: %02lu:%02lu:%02lu", (trip_time/3600), (trip_time/60), (trip_time%60));
+                lcd_print(output_buf, 4);
                 firstEntry=1;
-
             break;
 
             case STATE_TRIP_RESET:
                 lcd_clear(0);
-                lcd_print(" |RESET TRIP DATA|  ", 1);
-                _delay_ms(3000);
                 state = STATE_TRIP;
                 state_change = 1;
-                tripStep=0;
+                trip_step=0;
                 trip_time = 0;
+                lcd_print(" |RESET TRIP DATA|  ", 1);
+                _delay_ms(1000);
+                lcd_print("    Returning to    ", 3);
+                lcd_print("    trip view...    ", 4);
+                _delay_ms(2000);
                 lcd_clear(0);
             break;
         }
@@ -189,11 +188,15 @@ int main(void) {
             enable_button_interrupt();
 
         }
-        if(oldTripStep!=tripStep){
-            eeprom_update_byte((void*) 4, tripStep);
-            oldTripStep=tripStep;
+        if(old_trip_step !=trip_step){
+            eeprom_update_dword((void*) 8, trip_step);
+            old_trip_step = trip_step;
         }
-        pedometer(&x, &y, &z, &delayTime, &delayFlag, &tripStep);
+        if(timer_update){
+            eeprom_update_dword((void*) 4, trip_time);
+            timer_update = 0;
+        }
+        pedometer(&x, &y, &z, &delayTime, &delayFlag, &trip_step);
         _delay_ms(10); //Fixed loop delay
     };
 

@@ -45,7 +45,8 @@ volatile int8_t state;
 volatile int8_t state_change;
 volatile uint8_t button_hold_count;
 volatile unsigned long timer_ticks;
-volatile uint16_t trip_time;
+volatile unsigned long trip_time;
+volatile uint8_t timer_update;
 
 volatile uint8_t gps_data_ready;
 volatile char gps_buffer[128];

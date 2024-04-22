@@ -35,7 +35,7 @@ void timer0_init(void){
 
 void timer0_disable(void){
     TCCR0B = 0;
-    TIMSK0 &= ~(1 << TOIE0);                 // Enable timer overflow interrupt
+    TIMSK0 &= ~(1 << TOIE0);                 // Disable timer overflow interrupt
     timer_running = 0;
 }
 
