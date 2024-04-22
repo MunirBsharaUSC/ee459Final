@@ -30,13 +30,14 @@ int main(void) {
 
     // Variables and Buffers
     char accel_buf[20];
-    int16_t x = 0;
-    int16_t y = 0;
-    int16_t z = 0;
+    int16_t x;
+    int16_t y;
+    int16_t z;
     timer_ticks = 0;
 
     uint8_t delayTime=0;
     uint8_t delayFlag=0;
+    uint8_t firstEntry=1;
     unsigned long step=0;
     unsigned long oldStep=0;
 
@@ -46,6 +47,9 @@ int main(void) {
     uint8_t startIndex=0;
     uint8_t en=0;
     uint8_t prevSample=0;
+
+    uint8_t counter=0;
+
 
 
     // Retrieve info from EEPROM
@@ -78,9 +82,15 @@ int main(void) {
             case STATE_PULSE:
                 lcd_print("  |PULSE MONITOR|   ", 1);
                 heartbeatCalc(accel_buf, &count, beat_times, &currIndex, &startIndex, &en, &prevSample);
+
                 if(count==1){
                     lcd_clear(3);
                     lcd_print(accel_buf, 3);
+                }
+                if(firstEntry){
+                    lcd_clear(3);
+                    lcd_print("      NO BEATS      ", 3);
+                    firstEntry=0;
                 }
             break;
 
@@ -90,13 +100,21 @@ int main(void) {
                 therm_read_temperature(accel_buf);
                 lcd_clear(3);
                 lcd_print(accel_buf, 3);
+                firstEntry=1;
 
             break;
 
             case STATE_ACCEL:
                 lcd_print("  |ACCELEROMETER|   ", 1);
                 pedometer(&x, &y, &z, &delayTime, &delayFlag, &step);
-                snprintf(accel_buf, 20, "X:%d Y:%d Z:%d", x,y,z);
+
+                if(counter++==9){
+                    counter=0;
+                    snprintf(accel_buf, 20, "X:%+4d Y:%+4d Z:%+4d", x,y,z);
+                    lcd_clear(2);
+                    lcd_print(accel_buf, 2);
+                }
+
 
                 if(oldStep!=step){
                     snprintf(accel_buf, 20, "   Stick Steps:%ld", step);
@@ -107,10 +125,21 @@ int main(void) {
                     lcd_print(accel_buf, 4);
                     oldStep=step;
                 }
+                if(firstEntry){
+                    snprintf(accel_buf, 20, "   Stick Steps:%ld", step);
+                    lcd_clear(3);
+                    lcd_print(accel_buf, 3);
+                    snprintf(accel_buf, 20, "   Est. Steps:%ld", (step*2));
+                    lcd_clear(4);
+                    lcd_print(accel_buf, 4);
+                    oldStep=step;
+                    firstEntry=0;
+                }
             break;
 
             case STATE_TRIP:
                 lcd_print("    |TRIP STATE|    ", 1);
+                firstEntry=1;
 
             break;
 

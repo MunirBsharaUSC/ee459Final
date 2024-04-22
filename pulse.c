@@ -87,7 +87,7 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
         //_delay_ms(15);
     }
     if(!enTemp){
-        snprintf(buffer, 20, "No beats");
+        snprintf(buffer, 20, "      NO BEATS      ");
     }
     else if(enTemp && countTemp==1){
         unsigned long total=0;
@@ -96,7 +96,7 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
             total += beat_times[i];}
         }
         total = (MAX_BEATS * 60000) /(total);
-        snprintf(buffer, 20, "%ld beats", total);
+        snprintf(buffer, 20, "     %3d BEATS     ", total);
    /*     lcd_send_command(LCD_CLEAR_DISPLAY);
         _delay_ms(15);
         lcd_send_data(buffer);*/
