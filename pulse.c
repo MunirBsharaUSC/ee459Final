@@ -27,7 +27,6 @@ void timer1_init() {
     TCCR1B |= (1 << CS10) | (1 << CS11); // Set up timer with prescaler = 64
     TCNT1 = 0; // Initialize counter
     TIMSK1 |= (1 << TOIE1); // Enable overflow interrupt
-    sei(); // Enable global interrupts
 }
 
 // Timer1 overflow interrupt service routine
@@ -43,51 +42,64 @@ unsigned long millis() {
     cli();
     unsigned long total_ticks = timer_ticks * 65536 + TCNT1;
     millis_ret = (total_ticks * 10) / 768;
+    TCNT1=0;
+    timer_ticks=0;
     sei();
     return millis_ret;
 }
 
-void heartbeatCalc(char *buffer) {
-    int beat_count = 0;
-    //unsigned long last_beat_time = 0;         // Unused
-    //unsigned long current_time;               // Unused
-    unsigned long beat_times[MAX_BEATS] = {0};
-    int last_sample = 0;
-    int current_sample;
-    int count=0;
-    timer_ticks=0;
-    while (beat_count < MAX_BEATS) {
-        current_sample = adc_sample(2);
+void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times, uint8_t *currIndex, uint8_t *startIndex, uint8_t *en, uint8_t *prevSample) {
+    uint8_t sample;
 
-        //current_time = millis(); // Get current time in milliseconds
-        // Simple threshold-based beat detection
-        if (last_sample < BEAT_THRESHOLD && current_sample >= BEAT_THRESHOLD) {
-            beat_times[beat_count++] = millis();
-            count=0;
-            //Beat detected!
+    unsigned long countTemp=*count;
+    uint8_t currIndexTemp=*currIndex;
+    uint8_t startIndexTemp=*startIndex;
+    uint8_t enTemp=*en;
+    sample = adc_sample(2);
+    if ((sample >= BEAT_THRESHOLD) && (*prevSample<BEAT_THRESHOLD)){
+        countTemp=0;
+        beat_times[currIndexTemp]=millis();
+
+        //lcd_send_data("3");
+        //_delay_ms(275);
+        //_delay_ms(25);
+        currIndexTemp = (currIndexTemp+1)%MAX_BEATS;
+        *currIndex = currIndexTemp;
+        if(currIndexTemp==startIndexTemp){
+            //lcd_send_data("4");
+            //_delay_ms(25);
+            enTemp=1;
+            startIndexTemp=(startIndexTemp+1)%MAX_BEATS;
+            *startIndex=startIndexTemp;
         }
-        count++;
-        last_sample = current_sample;
-        if(count==100){
-            count=0;
-            beat_count=0;
-            last_sample=0;
-            timer_ticks=0;
-            int i = 0;
-            for(i=0; i<MAX_BEATS;i++){
-                beat_times[i] = 0;
-            }
+    }
+    *prevSample=sample;
+    countTemp++;
+    if(countTemp==300){
+        for(uint8_t i=0; i<MAX_BEATS; i++){
+            beat_times[i]=0;
         }
-        _delay_ms(30);
-
+        *startIndex=0;
+        *currIndex=0;
+        enTemp=0;
+        //lcd_send_command(LCD_CLEAR_DISPLAY);
+        //_delay_ms(15);
     }
-
-// Calculate average heart rate
-    if (beat_count == MAX_BEATS) {
-
-        unsigned long total_beat_time = beat_times[MAX_BEATS - 1] - beat_times[0];
-        unsigned long heart_rate = ((beat_count+3) * 60000) /(total_beat_time);
-
-        sprintf(buffer, "%ld beats", heart_rate);
+    if(!enTemp){
+        snprintf(buffer, 20, "No beats");
     }
+    else if(enTemp && countTemp==1){
+        unsigned long total=0;
+        for(uint8_t i=0; i<MAX_BEATS; i++){
+            if(i!=startIndexTemp){
+            total += beat_times[i];}
+        }
+        total = (MAX_BEATS * 60000) /(total);
+        snprintf(buffer, 20, "%ld beats", total);
+   /*     lcd_send_command(LCD_CLEAR_DISPLAY);
+        _delay_ms(15);
+        lcd_send_data(buffer);*/
+    }
+    *count=countTemp;
+    *en=enTemp;
 }

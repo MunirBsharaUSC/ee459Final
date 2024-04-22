@@ -44,4 +44,3 @@ volatile uint8_t button_hold_count;
 volatile unsigned long timer_ticks;
 
 // Define Function Prototypes
-

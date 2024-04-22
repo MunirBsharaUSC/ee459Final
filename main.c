@@ -29,10 +29,23 @@ int main(void) {
     timer1_init();
 
     // Variables and Buffers
-    //char accel_buf[20];
-    //int16_t x, y, z;
+    char accel_buf[20];
+    int16_t z = 0;
     timer_ticks = 0;
+    
+    uint8_t delayTime=0;
+    uint8_t delayFlag=0;
+    unsigned long step=0;
+    unsigned long oldStep=0;
 
+    unsigned long count=0;
+    unsigned long beat_times[10]={0};
+    uint8_t currIndex=0;
+    uint8_t startIndex=0;
+    uint8_t en=0;
+    uint8_t prevSample=0;
+
+  
     // Retrieve info from EEPROM
     state = eeprom_read_byte((void*) 0);
     state = (state >= 6 || state < 0) ? STATE_HOME : state; // Check state validity. Default to home if invalid
@@ -62,6 +75,11 @@ int main(void) {
 
             case STATE_PULSE:
                 lcd_print("  |PULSE MONITOR|   ", 1);
+                heartbeatCalc(accel_buf, &count, beat_times, &currIndex, &startIndex, &en, &prevSample);
+                if(count==1){
+                    lcd_clear(3);
+                    lcd_print(accel_buf, 3);
+                }
             break;
 
             case STATE_TEMP:
@@ -70,6 +88,13 @@ int main(void) {
 
             case STATE_ACCEL:
                 lcd_print("Accel State", 0);
+                pedometer(&z, &delayTime, &delayFlag, &step);
+                if(oldStep!=step){
+                    snprintf(accel_buf, 20, "Y:%ld", step);
+                    lcd_clear(4);
+                    lcd_print(accel_buf, 4);
+                    oldStep=step;
+                }
             break;
 
             case STATE_TRIP:
