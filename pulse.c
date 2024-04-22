@@ -33,9 +33,7 @@ void timer1_init() {
 // This ISR is called every time Timer1 overflows
 ISR(TIMER1_OVF_vect) {
         // Increment our timer tick count
-
         timer_ticks++;
-
 }
 
 // Function to get current time in milliseconds
