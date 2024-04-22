@@ -42,27 +42,27 @@ void parse_gpgga(const char *data, char *latitude, char *longitude) {
     // lcd_print(gpsBuffer1, 2);
 }
 
-bool isGPSLocked(const char *buffer[], int *length) {
-    // Check if the buffer starts with "$GPGGA"
-    if (length < 10 || string(buffer, 6) != "$GPGGA") {
-        return false;
+int isGPSLocked(const char buffer[], int length) {
+    if (strncmp(buffer, "$GPGGA", 6) != 0) {
+        return 0;
     }
 
-    // Remove the leading "$"
-    string data(buffer + 1, length - 1);
-    
-    // Split the sentence into fields
-    stringstream ss(data);
-    vector<string> fields;
-    string field;
-    while (getline(ss, field, ',')) {
-        fields.push_back(field);
+    // Find the comma after the 7th field (GPS Quality Indicator)
+    const char* comma = strchr(buffer, ',');
+    for (int i = 0; i < 4; ++i) {
+        comma = strchr(comma + 1, ',');
+        if (comma == NULL) {
+            return 0; 
+        }
     }
 
-    // Check if the number of fields is correct and if the GPS quality indicator is 1
-    if (fields.size() >= 7 && fields[6] == "1") {
-        return true;
+    // Extract the GPS Quality Indicator
+    char quality_indicator = *(comma + 1);
+
+    // Check if the GPS Quality Indicator is '1' (indicating a GPS fix)
+    if (quality_indicator == '1' || quality_indicator == '2') {
+        return 1;
     }
 
-    return false;
+    return 0;
 }
