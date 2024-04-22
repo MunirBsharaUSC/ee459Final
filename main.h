@@ -12,7 +12,7 @@
 #include "lcd.h"
 #include "therm.h"
 #include "accel.h"
-#include "heartrate.h"
+#include "pulse.h"
 
 // Define Constants
 #define FOSC 9830400                        // Clock frequency = Oscillator freq.
@@ -31,4 +31,3 @@
 volatile unsigned long timer_ticks = 0;
 
 // Define Function Prototypes
-

@@ -1,4 +1,4 @@
-#include "heartrate.h"
+#include "pulse.h"
 
 extern volatile unsigned long timer_ticks;
 

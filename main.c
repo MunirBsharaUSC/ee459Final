@@ -35,6 +35,7 @@ int main(void) {
     uint8_t delayTime=0;
     uint8_t delayFlag=0;
     unsigned long step=0;
+    unsigned long oldStep=0;
 
     unsigned long count=0;
     unsigned long beat_times[10]={0};
@@ -67,9 +68,12 @@ int main(void) {
         lcd_clear(4);
         lcd_print(accel_buf, 4);*/
         pedometer(&z, &delayTime, &delayFlag, &step);
-        snprintf(accel_buf, 20, "Y:%ld", step);
-        lcd_clear(4);
-        lcd_print(accel_buf, 4);
+        if(oldStep!=step){
+            snprintf(accel_buf, 20, "Y:%ld", step);
+            lcd_clear(4);
+            lcd_print(accel_buf, 4);
+            oldStep=step;
+        }
 
         heartbeatCalc(accel_buf, &count, beat_times, &currIndex, &startIndex, &en, &prevSample);
         if(count==1){
