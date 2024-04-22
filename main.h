@@ -14,6 +14,7 @@
 #include "therm.h"
 #include "accel.h"
 #include "pulse.h"
+#include "gps.h"
 #include "button.h"
 
 // Define Constants
@@ -37,10 +38,15 @@
 // Number of cycles that the loop takes
 #define us(num) (num/(LOOP_CYCLES*(1/(FOSC/1000000.0))))
 
-// Define Global Variables
+// Declare Global Variables
 volatile int8_t state;
 volatile int8_t state_change;
 volatile uint8_t button_hold_count;
 volatile unsigned long timer_ticks;
+
+volatile uint8_t gps_data_ready;
+volatile char gps_buffer[128];
+char latitude[20];
+char longitude[20]; 
 
 // Define Function Prototypes

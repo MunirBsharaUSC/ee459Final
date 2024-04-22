@@ -76,7 +76,8 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
     *prevSample=sample;
     countTemp++;
     if(countTemp==300){
-        for(uint8_t i=0; i<MAX_BEATS; i++){
+        uint8_t i;
+        for(i=0; i<MAX_BEATS; i++){
             beat_times[i]=0;
         }
         *startIndex=0;
@@ -90,7 +91,8 @@ void heartbeatCalc(char *buffer, unsigned long *count, unsigned long *beat_times
     }
     else if(enTemp && countTemp==1){
         unsigned long total=0;
-        for(uint8_t i=0; i<MAX_BEATS; i++){
+        uint8_t i;
+        for(i=0; i<MAX_BEATS; i++){
             if(i!=startIndexTemp){
             total += beat_times[i];}
         }

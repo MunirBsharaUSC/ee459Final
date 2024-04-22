@@ -33,6 +33,10 @@ int main(void) {
     int16_t z = 0;
     timer_ticks = 0;
     
+    memset(latitude, ' ', 20);
+    memset(longitude, ' ', 20);
+    gps_data_ready = 0;
+    
     uint8_t delayTime=0;
     uint8_t delayFlag=0;
     unsigned long step=0;
@@ -57,10 +61,17 @@ int main(void) {
     lcd_print("   Boot Succesful!  ", 4);
     _delay_ms(1000);
     lcd_clear(0);
-    sei();  // Enable interrupts after boto
+    sei();  // Enable interrupts after boot
 
     // Main Program Loop
     while(1){
+        if(state_change){
+            state_change = 0;
+            eeprom_update_byte((void*) 0, state);
+            lcd_clear(0);
+            _delay_ms(50);
+            PCICR |= (1 << PCIE2);
+        }
         switch(state){
             case STATE_HOME:
                 lcd_print(" |SUMMITWAND HOME|  ", 1);
@@ -71,6 +82,22 @@ int main(void) {
 
             case STATE_GPS:
                 lcd_print("     |GPS DATA|     ", 1);
+                while(!gps_data_ready);
+                if(isGPSLocked()){
+                    lcd_print(" GPS Lock Obtained! ", 2);  
+                    parse_gpgga();
+                    char out_buf[20];
+                    sprintf(out_buf, "LAT : %s", latitude);
+                    lcd_print(out_buf, 3);
+                    sprintf(out_buf, "LONG: %s", longitude);
+                    lcd_print(out_buf, 4);   
+                    gps_data_ready = 0;
+                }
+                else{ // No GPS Lock
+                    lcd_print("    No GPS Lock     ", 2);
+                    lcd_print("    Attempting      ", 3);
+                    lcd_print("    Connection...   ", 4);
+                }
             break;
 
             case STATE_PULSE:
@@ -109,13 +136,6 @@ int main(void) {
                 state_change = 1;
                 lcd_clear(0);
             break;
-        }
-        if(state_change){
-            state_change = 0;
-            eeprom_update_byte((void*) 0, state);
-            lcd_clear(0);
-            _delay_ms(50);
-            PCICR |= (1 << PCIE2);
         }
         _delay_ms(10); //Fixed loop delay
     };

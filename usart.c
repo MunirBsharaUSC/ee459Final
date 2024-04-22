@@ -1,13 +1,12 @@
 #include "usart.h"
 
 void USART_Init(unsigned int ubrr){
-    // Set baud rate
-    UBRR0H = (unsigned char)(ubrr>>8);
-    UBRR0L = (unsigned char)ubrr;
-    // Enable receiver and transmitter
-    UCSR0B = (1<<RXEN0)|(1<<TXEN0);
-    // Set frame format: 8 data bits, 1 stop bit
-    UCSR0C = (3<<UCSZ00);
+    UBRR0 = ubrr;               // Set baud rate
+    UCSR0C = (3 << UCSZ00);     // Set for asynchronous operation, no parity, one stop bit, 8 data bits
+    UCSR0B |= (1 << TXEN0);     // Turn on transmitter
+    UCSR0B |= (1 << RXEN0);     // Turn on receiver
+    UCSR0B |= (1 << RXCIE0);    // Enable receiver interrupts
+    DDRD |= (1 << PD1);
 }
 
 void USART_Transmit(unsigned char data){
