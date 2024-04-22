@@ -9,5 +9,5 @@
 
 volatile uint8_t buffer_index;
 
-extern void parse_gpgga(void);
+extern char parse_gpgga(void);
 extern char isGPSLocked(void);
