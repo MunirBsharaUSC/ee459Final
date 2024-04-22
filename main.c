@@ -20,17 +20,22 @@ int main(void) {
     lcd_clear(3);
     lcd_print("Initializing Boot...", 4);
 
-    // Initialization
+    // Setup/Initialization
     USART_Init(MYUBRR);
     adc_init();
     accel_init();
+    button_init();
     therm_reset();
     timer1_init();
-    sei();
 
     // Variables and Buffers
-    char accel_buf[20];
-    int16_t x, y, z;
+    //char accel_buf[20];
+    //int16_t x, y, z;
+    timer_ticks = 0;
+
+    // Retrieve info from EEPROM
+    state = eeprom_read_byte((void*) 0);
+    state = (state >= 6 || state < 0) ? STATE_HOME : state; // Check state validity. Default to home if invalid
 
     // Display succesful boot
     _delay_ms(1000);
@@ -39,22 +44,55 @@ int main(void) {
     lcd_print("   Boot Succesful!  ", 4);
     _delay_ms(1000);
     lcd_clear(0);
+    sei();  // Enable interrupts after boto
 
-    // Main Program Loop (accelerometer test)
+    // Main Program Loop
     while(1){
-        accel_read(&x, &y, &z);
-        lcd_print("ACCELEROMETER", 1);
-        snprintf(accel_buf, 20, "X:%d", x);
-        lcd_clear(2);
-        lcd_print(accel_buf, 2);
-        snprintf(accel_buf, 20, "Y:%d", y);
-        lcd_clear(3);
-        lcd_print(accel_buf, 3);
-        snprintf(accel_buf, 20, "Z:%d", z);
-        lcd_clear(4);
-        lcd_print(accel_buf, 4);
+        switch(state){
+            case STATE_HOME:
+                lcd_print(" |SUMMITWAND HOME|  ", 1);
+                lcd_print("Press to toggle view", 2);
+                lcd_print("1:Home 2:GPS 3:Pulse", 3);
+                lcd_print("4:Temp 5:Acc 6:Trip ", 4);
+            break;
 
-        _delay_ms(100);
+            case STATE_GPS:
+                lcd_print("     |GPS DATA|     ", 1);
+            break;
+
+            case STATE_PULSE:
+                lcd_print("  |PULSE MONITOR|   ", 1);
+            break;
+
+            case STATE_TEMP:
+                lcd_print("Temp State", 0);
+            break;
+
+            case STATE_ACCEL:
+                lcd_print("Accel State", 0);
+            break;
+
+            case STATE_TRIP:
+                lcd_print("Trip State", 0);
+    
+            break;
+
+            case STATE_TRIP_RESET:
+                lcd_print("RESET TRIP DATA", 0);
+                _delay_ms(3000);
+                state = STATE_TRIP;
+                state_change = 1;
+                lcd_clear(0);
+            break;
+        }
+        if(state_change){
+            state_change = 0;
+            eeprom_update_byte((void*) 0, state);
+            lcd_clear(0);
+            _delay_ms(50);
+            PCICR |= (1 << PCIE2);
+        }
+        _delay_ms(10); //Fixed loop delay
     };
 
     return 0;   // Never reached

@@ -1,7 +1,7 @@
 DEVICE     = atmega328p
 CLOCK      = 9830400
 PROGRAMMER = -c usbtiny -P usb
-OBJECTS    = main.o therm.o accel.o heartrate.o lcd.o adc.o usart.o i2c.o
+OBJECTS    = main.o button.o therm.o accel.o pulse.o lcd.o adc.o usart.o i2c.o
 FUSES      = -U hfuse:w:0xd9:m -U lfuse:w:0xe0:m
 
 # Fuse Low Byte = 0xe0   Fuse High Byte = 0xd9   Fuse Extended Byte = 0xff

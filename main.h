@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 #include <string.h>
 #include <util/delay.h>
 
@@ -12,7 +13,8 @@
 #include "lcd.h"
 #include "therm.h"
 #include "accel.h"
-#include "heartrate.h"
+#include "pulse.h"
+#include "button.h"
 
 // Define Constants
 #define FOSC 9830400                        // Clock frequency = Oscillator freq.
@@ -21,14 +23,25 @@
 #define BDIV (FOSC / 100000 - 16) / 2 + 1   // Puts I2C rate just below 100kHz
 #define LOOP_CYCLES 8                       // Your clock speed in Hz (3Mhz here)
 
-// Define Aliases/Commands
-
+// Define Aliases/Commands/States
+#define STATE_ERROR     -1
+#define STATE_HOME       0
+#define STATE_GPS        1
+#define STATE_PULSE      2
+#define STATE_TEMP       3
+#define STATE_ACCEL      4
+#define STATE_TRIP       5
+#define STATE_TRIP_RESET 6
+#define NUM_STATES       6
 
 // Number of cycles that the loop takes
 #define us(num) (num/(LOOP_CYCLES*(1/(FOSC/1000000.0))))
 
 // Define Global Variables
-volatile unsigned long timer_ticks = 0;
+volatile int8_t state;
+volatile int8_t state_change;
+volatile uint8_t button_hold_count;
+volatile unsigned long timer_ticks;
 
 // Define Function Prototypes
 
