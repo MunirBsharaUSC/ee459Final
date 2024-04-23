@@ -78,4 +78,23 @@ void parse_gprmc(void){
         // }
         token = strtok(NULL, ",");
     }
+
+    // Fix longitude and latitude decimal position (unverified)
+    uint8_t i = 0;
+    for(i=0; i<strlen((const char*) latitude); i++){
+        if(latitude[i] == '.'){
+            latitude[i] = latitude[i-1];
+            latitude[i-1] = latitude[i-2];
+            latitude[i-2] = '.';
+            break;
+        }
+    }
+    for(i=0; i<strlen((const char*) longitude); i++){
+        if(longitude[i] == '.'){
+            longitude[i] = longitude[i-1];
+            longitude[i-1] = longitude[i-2];
+            longitude[i-2] = '.';
+            break;
+        }
+    }
 }
