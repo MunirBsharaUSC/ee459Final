@@ -12,7 +12,7 @@ int main(void) {
     // Display welcome/initialization message
     lcd_clear(0);
     lcd_print("   Welcome to the   ", 1);
-    lcd_print("  SummitWand v1.0!  ", 2);
+    lcd_print("  SummitWand v2.0!  ", 2);
     _delay_ms(1000);
     lcd_print("    The Enhanced    ", 3);
     lcd_print(" Hiking Experience! ", 4);
@@ -88,25 +88,35 @@ int main(void) {
                 lcd_print("     |GPS DATA|     ", 1);
                 firstEntry=1;
                 while(!gps_data_ready);
-                if (strncmp(gps_buffer, "$GPGGA", 6) == 0){
-                    parse_gpgga();
-                    lcd_print("    Locked GPGGA   ", 2);
-                    sprintf(output_buf, "LAT : %s %s", latitude, dir1);
-                    lcd_print(output_buf, 3);
-                    sprintf(output_buf, "LONG: %s %s", longitude, "W");
-                    lcd_print(output_buf, 4);
-                    gps_data_ready = 0;
-                }
+                // if (strncmp(gps_buffer, "$GPGGA", 6) == 0){
+                //     parse_gpgga();
+                //     lcd_print("    Locked GPGGA   ", 2);
+                //     sprintf(output_buf, "LAT : %s %s", latitude, dir1);
+                //     lcd_print(output_buf, 3);
+                //     sprintf(output_buf, "LONG: %s %s", longitude, "W");
+                //     lcd_print(output_buf, 4);
+                //     gps_data_ready = 0;
+                // }
                 if (strncmp(gps_buffer, "$GPRMC", 6) == 0){
-                    lcd_print("    Locked GPRMC   ", 2);
                     parse_gprmc();
-                    sprintf(output_buf, "LAT : %s %s", latitude, dir1);
-                    lcd_print(output_buf, 3);
-                    sprintf(output_buf, "LONG: %s %s", longitude, "W");
-                    lcd_print(output_buf, 4);
-                    gps_data_ready = 0;
+                    if (strncmp(latitude, "0.0", 3) == 0){
+                        lcd_print("   GPS Not Locked   ", 2);
+                        lcd_print("   Waiting for     ", 3);
+                        lcd_print("   Connection...    ", 4);
+                    }
+                    else{
+                        lcd_print("    Locked GPRMC   ", 2);
+                        lcd_clear(3);
+                        sprintf(output_buf, "LAT : %s %s", latitude, dir1);
+                        lcd_print(output_buf, 3);
+                        lcd_clear(4);
+                        sprintf(output_buf, "LONG: %s %s", longitude, "W");
+                        lcd_print(output_buf, 4);
+                        gps_data_ready = 0;
+                    }
+                    
                 }
-                
+                _delay_ms(20);
             break;
 
             case STATE_PULSE:
@@ -124,13 +134,17 @@ int main(void) {
             break;
 
             case STATE_TEMP:
+             count=0;
+             currIndex=0;
+             startIndex=0;
+             en=0;
+             prevSample=0;
                 lcd_print("   |THERMOMETER|    ", 1);
                 lcd_print("      Celsius      ", 2);
                 therm_read_temperature(output_buf);
                 lcd_clear(3);
                 lcd_print(output_buf, 3);
                 firstEntry=1;
-
             break;
 
             case STATE_ACCEL:

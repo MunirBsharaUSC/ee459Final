@@ -20,9 +20,9 @@
 #include "timer.h"
 
 // Define Constants
-#define FOSC 7.37286e6  //9830400                        // Clock frequency = Oscillator freq.
+#define FOSC 9830400                        // Clock frequency = Oscillator freq.
 #define BAUD 9600                           // UART0 baud rate
-#define MYUBRR 47                   // FOSC/16/BAUD-1 Value for UBRR0 register
+#define MYUBRR 47 //FOSC/16/BAUD-1          // Value for UBRR0 register
 #define BDIV (FOSC / 100000 - 16) / 2 + 1   // Puts I2C rate just below 100kHz
 #define LOOP_CYCLES 8                       // Your clock speed in Hz (3Mhz here)
 

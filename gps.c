@@ -21,58 +21,58 @@ ISR(USART_RX_vect) {
     }
 }
 
-void parse_gpgga(void) {
+// void parse_gpgga(void) {
 
-    char *token;
-    uint8_t count = 0;
+//     char *token;
+//     uint8_t gps_count = 0;
 
-    unsigned char data_copy[strlen(gps_buffer) + 1];
-    strcpy(data_copy, gps_buffer);
-    data_copy[strlen(gps_buffer) + 1] = '\0';
+//     char data_copy[strlen(gps_buffer) + 1];
+//     strcpy(data_copy, gps_buffer);
+//     data_copy[strlen(gps_buffer) + 1] = '\0';
 
-    token = strtok(data_copy, ",");
-    while (token != NULL) {
-        count++;
-        if (count == 2) {
-            strcpy(latitude, token);
-        }
-        else if (count == 3){
-            strcpy(dir1, token);
-        }
-        else if (count == 9){
-            strcpy(dir2, token);
-        }
-        else if (count == 10){
-            strcpy(longitude, token);
-            break;
-        }
-        token = strtok(NULL, ",");
-    }
-}
+//     token = strtok(data_copy, ",");
+//     while (token != NULL) {
+//         gps_count++;
+//         if (gps_count == 2) {
+//             strcpy(latitude, token);
+//         }
+//         else if (gps_count == 3){
+//             strcpy(dir1, token);
+//         }
+//         else if (gps_count == 9){
+//             strcpy(dir2, token);
+//         }
+//         else if (gps_count == 10){
+//             strcpy(longitude, token);
+//             break;
+//         }
+//         token = strtok(NULL, ",");
+//     }
+// }
 
 void parse_gprmc(void){
 
-    char *token;
-    uint8_t count = 0;
+    char* token;
+    uint8_t gps_count = 0;
 
-    unsigned char data_copy[strlen(gps_buffer) + 1];
-    strcpy(data_copy, gps_buffer);
-    data_copy[strlen(gps_buffer) + 1] = '\0';
+    char data_copy[strlen((const char*)gps_buffer) + 1];
+    strcpy(data_copy, (const char*)gps_buffer);
+    data_copy[strlen((const char*)gps_buffer) - 1] = '\0';
 
     token = strtok(data_copy, ",");
     while (token != NULL) {
-        count++;
-        if (count == 4) {
+        gps_count++;
+        if (gps_count == 4) {
             strcpy(latitude, token);
         }
-        else if (count == 5){
+        else if (gps_count == 5){
             strcpy(dir1, token);
         }
-        else if (count == 6) {
+        else if (gps_count == 6) {
             strcpy(longitude, token);
             break;
         }
-        // else if (count == 7){
+        // else if (gps_count == 7){
         //     strcpy(dir2, token);
         //     break;
         // }
