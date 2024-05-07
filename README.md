@@ -1,6 +1,6 @@
 # SummitWand Source Code
 
-**Team 9: Munir Bshara, Carrie Lei, Eric Zhong**
+**Team 9: Munir Bshara, Carrie Lei, Eric Zhong**  
 **EE 459 Spring 2024 Capstone Project**
 
 This repository contains all of the working source files for the SummitWand project,  a smart hiking stick for enhancing the outdoor hiking experience. Use the following instructions to compile and run the project...
