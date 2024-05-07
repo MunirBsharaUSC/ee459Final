@@ -97,7 +97,7 @@ int main(void) {
                 //     lcd_print(output_buf, 4);
                 //     gps_data_ready = 0;
                 // }
-                if (strncmp(gps_buffer, "$GPRMC", 6) == 0){
+                if (strncmp((const char*)gps_buffer, "$GPRMC", 6) == 0){
                     parse_gprmc();
                     if (strncmp(latitude, "0.0", 3) == 0){
                         lcd_print("   GPS Not Locked   ", 2);
